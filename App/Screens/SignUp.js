@@ -3,41 +3,84 @@ import { Alert, ImageBackground, StyleSheet, Text, TouchableOpacity, View, } fro
 import { Button, TextInput, } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBook } from '@fortawesome/free-solid-svg-icons';
-import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { authentication } from '../../services/firebase';
+import { authentication, db } from '../../services/firebase';
+import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
-export function Intro({ navigation, route }) {
+export function SignUp({ navigation }) {
 
+    const [fName, setFname] = useState("");
+    const [lName, setLName] = useState("");
+    const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [word, setWord] = useState(true);
     const [icon, setIcon] = useState("eye");
 
-    function LoginAuth() {
-        signInWithEmailAndPassword(authentication, email, password)
-            .then((userCredential) => {
-                // const user = userCredential.user;
-                onAuthStateChanged(authentication, (userInfo) => {
-                    navigation.navigate('HomeScreen', { userUID: userInfo.uid });
-                })
-            })
-            .catch((error) => Alert.alert(
-                'Status',
-                `${error}`,
-                [{ text: 'Back to SignIn', onPress: navigation.navigate('Intro') }]
-            ))
+    const userRecords = {
+        fName:fName,
+        lName:lName,
+        phoneNumber:phone,
+        email:email,
+        password:password,
+        
     }
+
+    function CreateUserAuth () { 
+        createUserWithEmailAndPassword(authentication,email,password)
+        .then(() => onAuthStateChanged(authentication,(user)=>{
+            const userUID = user.uid;
+
+            //insert other records to firestore
+            setDoc(doc(db,'users',userUID),userRecords)
+            .then(()=> {navigation.navigate('HomeScreen',{userUID:userUID})})
+            .catch(() => Alert.alert(
+                'Status',
+                'Failed while interracting with database',
+                [{text:'Back to SignUp',onPress:navigation.navigate('SignUp')}]
+            ))
+        }))
+        .catch((error) => Alert.alert(
+            'Status',
+            `${error}`,
+            [{text:'Back to SignUp',onPress:navigation.navigate('SignUp')}]
+        ))
+    }
+
+
     return (
         <ImageBackground source={require('../../assets/15.jpg')} style={styles.container}>
             <View style={styles.overlay}>
-                <Text style={styles.header}>Sign In</Text>
+                <Text style={styles.header}>Create An Account</Text>
+                <TextInput
+                    label="First Name"
+                    onChangeText={text => setFname(text)}
+                    underlineColor="none"
+                    activeUnderlineColor='none'
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Last Name"
+                    onChangeText={text => setLName(text)}
+                    underlineColor="none"
+                    activeUnderlineColor='none'
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Phone number"
+                    onChangeText={text => setPhone(text)}
+                    underlineColor="none"
+                    activeUnderlineColor='none'
+                    style={styles.input}
+                    keyboardType='phone-pad'
+                />
                 <TextInput
                     label="Email"
                     onChangeText={text => setEmail(text)}
                     underlineColor="none"
                     activeUnderlineColor='none'
-                    keyboardType='email-address'
                     style={styles.input}
+                    keyboardType='email-address'
                 />
                 <TextInput
                     underlineColor="none"
@@ -58,12 +101,10 @@ export function Intro({ navigation, route }) {
                         }
                     }} icon={icon} />}
                 />
-                <TouchableOpacity>
-                    <Text style={styles.last}>Forgotten Passsord</Text>
-                </TouchableOpacity>
-                <Button mode='contained' onPress={LoginAuth}>Log In</Button>
-                <TouchableOpacity onPress={() => navigation.navigate("SignUp")} >
-                    <Text style={styles.last}>Don't have an accout, create one</Text>
+                <Button mode='contained' onPress={CreateUserAuth}>Log In</Button>
+                
+                <TouchableOpacity onPress={() => navigation.navigate("Intro")}>
+                    <Text style={styles.last}>Already have an accout, Log in</Text>
                 </TouchableOpacity>
             </View>
         </ImageBackground>
@@ -86,7 +127,7 @@ const styles = StyleSheet.create({
     input: {
         width: '100%',
         borderRadius: 50,
-        marginTop: 20,
+        marginBottom: 20,
         borderTopRightRadius: 50,
         borderTopLeftRadius: 50,
         borderBottomColor: 'green',
@@ -98,7 +139,7 @@ const styles = StyleSheet.create({
     },
     header: {
         color: "white",
-        fontSize: 40,
+        fontSize: 30,
         fontWeight: 'bold',
         marginBottom: 20
     },
