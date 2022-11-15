@@ -55,8 +55,6 @@ export function HomeScreen({ navigation, route }) {
     return (
         <SafeAreaView style={{ backgroundColor: "rgba(128,128,128,0.2)", flex: 1 }}>
             <View style={styles.container}>
-
-
                 <Text style={styles.greetingText}>Good {greeting} {userInfo.fName}</Text>
                 <Searchbar
                     placeholder="Search Note"
@@ -68,7 +66,7 @@ export function HomeScreen({ navigation, route }) {
                     onPress={() => navigation.navigate('AddNote', { userUID: userUID })}>
                     <FontAwesomeIcon icon={faPlus} size={30} color="white" />
                 </TouchableOpacity>
-                <FlatList showsVerticalScrollIndicator data={notes} renderItem={({ item }) => {
+                <FlatList data={notes} renderItem={({ item }) => {
                     return (
                         <TouchableOpacity style={styles.singleNote} onPress={() => navigation.navigate("Note", { noteId: item.noteId })}
                             onLongPress={() => Alert.alert(

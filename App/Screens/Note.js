@@ -9,6 +9,7 @@ import { db } from '../../services/firebase';
 export function Note({ navigation, route }) {
 
     const { noteId } = route.params;
+    
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [noteInfo, setNoteInfo] = useState('');
@@ -28,6 +29,9 @@ export function Note({ navigation, route }) {
             content: content
         })
             .then(() => setStatus(true))
+            .catch(() => {
+                Alert.alert('Error', 'An unknown error occured while saving this post')
+            })
     }
 
     function deletePost(par) {
