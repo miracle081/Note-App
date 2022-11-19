@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBook, faPlus, } from '@fortawesome/free-solid-svg-icons';
 import { faGooglePlay } from '@fortawesome/free-brands-svg-icons';
@@ -52,31 +52,40 @@ export function AddNote({ navigation, route }) {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            {/* <Text>{savedate}</Text> */}
-            <TextInput placeholder='Title...'
-                style={{ fontSize: 20, fontWeight: '500', backgroundColor: 'white', borderRadius: 10, marginBottom: 5, }}
-                onChangeText={text => setTitle(text)}
-            />
-            <TextInput
-                multiline={true}
-                numberOfLines={20}
-                placeholder='Content'
-                style={{ backgroundColor: 'white', borderRadius: 10, marginBottom: 5 }}
-                onChangeText={text => setContent(text)}
-            />
-            <Card.Actions>
-                <Button
-                    icon="file"
-                    mode='elevated'
-                    textColor='#fff'
-                    buttonColor='#002E94'
-                    onPress={add}
-                >
-                    Add Note
-                </Button>
-            </Card.Actions>
-        </ScrollView>
+        <KeyboardAvoidingView
+            {...(Platform.OS === 'ios' ? { behavior: 'padding' } : {})}
+            style={styles.container}>
+            <ScrollView style={styles.container}>
+                {/* <ScrollView style={styles.scrollView}>
+                    <TextInput style={styles.input} placeholder="Tap here" />
+                </ScrollView>
+                <Button title="Next" /> */}
+
+                {/* <Text>{savedate}</Text> */}
+                <TextInput placeholder='Title...'
+                    style={{ fontSize: 20, fontWeight: '500', backgroundColor: 'white', borderRadius: 10, marginBottom: 5, }}
+                    onChangeText={text => setTitle(text)}
+                />
+                <TextInput
+                    multiline={true}
+                    numberOfLines={20}
+                    placeholder='Content'
+                    style={{ backgroundColor: 'white', borderRadius: 10, marginBottom: 5 }}
+                    onChangeText={text => setContent(text)}
+                />
+                <Card.Actions>
+                    <Button
+                        icon="file"
+                        mode='elevated'
+                        textColor='#fff'
+                        buttonColor='#002E94'
+                        onPress={add}
+                    >
+                        Add Note
+                    </Button>
+                </Card.Actions>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
 

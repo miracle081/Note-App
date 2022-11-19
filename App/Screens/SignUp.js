@@ -38,7 +38,7 @@ export function SignUp({ navigation }) {
                 'Status',
                 'Failed while interracting with database',
                 [{text:'Back to SignUp',onPress:navigation.navigate('SignUp')}]
-            ))
+            )) 
         }))
         .catch((error) => Alert.alert(
             'Status',
