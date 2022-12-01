@@ -8,8 +8,8 @@ import { db } from '../../services/firebase';
 
 export function Note({ navigation, route }) {
 
-    const { noteId } = route.params;
-    
+    const { noteId, userUID } = route.params;
+
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [noteInfo, setNoteInfo] = useState('');
@@ -34,9 +34,9 @@ export function Note({ navigation, route }) {
             })
     }
 
-    function deletePost(par) {
-        deleteDoc(doc(db, "notes", par))
-            .then(navigation.navigate("HomeScreen"))
+    function deletePost() {
+        deleteDoc(doc(db, "notes", noteId))
+            .then(navigation.navigate("HomeScreen", { userUID: userUID }))
             .catch(() => {
                 Alert.alert('Error', 'An unknown error occured while deleting this post')
             })
@@ -48,26 +48,30 @@ export function Note({ navigation, route }) {
                 <FontAwesomeIcon icon={faFileEdit} size={30} color="#002E94" />
                 <Text style={styles.header}>Edit note</Text>
             </View>
-            <TextInput placeholder='Title...'
-                style={{ fontSize: 20, fontWeight: '500', backgroundColor: 'white', borderRadius: 10, marginBottom: 5, }}
-                value={title}
-                onChangeText={text => { setTitle(text); setStatus(false) }}
-            />
-            <TextInput
-                multiline={true}
-                numberOfLines={20}
-                placeholder='Content'
-                style={{ backgroundColor: 'white', borderRadius: 10, marginBottom: 5 }}
-                value={content}
-                onChangeText={text => { setContent(text); setStatus(false) }}
-            />
+            <ScrollView>
+
+
+                <TextInput placeholder='Title...'
+                    style={{ fontSize: 20, fontWeight: '500', backgroundColor: 'white', borderRadius: 10, marginBottom: 5, }}
+                    value={title}
+                    onChangeText={text => { setTitle(text); setStatus(false) }}
+                />
+                <TextInput
+                    multiline={true}
+                    numberOfLines={20}
+                    placeholder='Content'
+                    style={{ backgroundColor: 'white', borderRadius: 10, marginBottom: 5 }}
+                    value={content}
+                    onChangeText={text => { setContent(text); setStatus(false) }}
+                />
+            </ScrollView>
             <Card.Actions>
                 <Button
                     icon="delete"
                     mode='elevated'
                     textColor='#fff'
                     buttonColor='red'
-                    onPress={() => deletePost(noteId)}
+                    onPress={() => deletePost()}
                 >
                     delete note
                 </Button>

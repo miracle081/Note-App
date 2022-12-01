@@ -53,7 +53,8 @@ export function AddNote({ navigation, route }) {
 
     return (
         <KeyboardAvoidingView
-            {...(Platform.OS === 'ios' ? { behavior: 'padding' } : {})}
+        // behavior='height'
+            // {...(Platform.OS === 'ios' ? { behavior: 60 } : {})}
             style={styles.container}>
             <ScrollView style={styles.container}>
                 {/* <ScrollView style={styles.scrollView}>

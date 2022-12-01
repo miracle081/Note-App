@@ -1,14 +1,16 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Alert, ImageBackground, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import { Button, TextInput, } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBook } from '@fortawesome/free-solid-svg-icons';
 import { authentication, db } from '../../services/firebase';
 import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, setDoc, where } from 'firebase/firestore';
 
 export function SignUp({ navigation }) {
 
+    const [userExist, setUserExist] = useState(null);
+    const [userName, setUserName] = useState("");
     const [fName, setFname] = useState("");
     const [lName, setLName] = useState("");
     const [phone, setPhone] = useState("");
@@ -18,40 +20,76 @@ export function SignUp({ navigation }) {
     const [icon, setIcon] = useState("eye");
 
     const userRecords = {
-        fName:fName,
-        lName:lName,
-        phoneNumber:phone,
-        email:email,
-        password:password,
-        
+        userName: userName,
+        fName: fName,
+        lName: lName,
+        phoneNumber: phone,
+        email: email,
+        password: password,
+        userRole: 'User',
     }
 
-    function CreateUserAuth () { 
-        createUserWithEmailAndPassword(authentication,email,password)
-        .then(() => onAuthStateChanged(authentication,(user)=>{
-            const userUID = user.uid;
 
-            //insert other records to firestore
-            setDoc(doc(db,'users',userUID),userRecords)
-            .then(()=> {navigation.navigate('HomeScreen',{userUID:userUID})})
-            .catch(() => Alert.alert(
-                'Status',
-                'Failed while interracting with database',
-                [{text:'Back to SignUp',onPress:navigation.navigate('SignUp')}]
-            )) 
-        }))
-        .catch((error) => Alert.alert(
-            'Status',
-            `${error}`,
-            [{text:'Back to SignUp',onPress:navigation.navigate('SignUp')}]
-        ))
+
+
+    function checkUserName() {
+        const q = collection(db, 'users');
+        const filter = query(q, where('userName', '==', userName));
+        getDocs(filter, (returned) => {
+            const allUser = [];
+            returned.forEach(item => {
+                const itemData = item.data();
+                itemData.noteId = item.id;
+                allUser.push(itemData);
+            })
+            console.log(allUser.length);
+            if (allUser.length === 0) {
+                setUserExist(false)
+            }
+            else if (allUser.length >= 1) {
+                setUserExist(true)
+            }
+        })
+        if (userExist === false) {
+            createUserWithEmailAndPassword(authentication, email, password)
+                .then(() => onAuthStateChanged(authentication, (user) => {
+                    const userUID = user.uid;
+
+                    //insert other records to firestore
+                    setDoc(doc(db, 'users', userUID), userRecords)
+                        .then(() => { navigation.navigate('HomeScreen', { userUID: userUID }) })
+                        .catch(() => Alert.alert(
+                            'Status',
+                            'Failed while interracting with database',
+                            [{ text: 'Back to SignUp', onPress: navigation.navigate('SignUp') }]
+                        ))
+                }))
+                .catch((error) => Alert.alert(
+                    'Status',
+                    `${error}`,
+                    [{ text: 'Back to SignUp', onPress: navigation.navigate('SignUp') }]
+                ))
+        }
+        else{
+            alert("User Exist")
+        }
     }
 
+    // useEffect(() => {
+    //     checkUserName();
+    // }, []);
 
     return (
         <ImageBackground source={require('../../assets/15.jpg')} style={styles.container}>
             <View style={styles.overlay}>
                 <Text style={styles.header}>Create An Account</Text>
+                <TextInput
+                    label="username"
+                    onChangeText={text => setUserName(text)}
+                    underlineColor="none"
+                    activeUnderlineColor='none'
+                    style={styles.input}
+                />
                 <TextInput
                     label="First Name"
                     onChangeText={text => setFname(text)}
@@ -101,8 +139,8 @@ export function SignUp({ navigation }) {
                         }
                     }} icon={icon} />}
                 />
-                <Button mode='contained' onPress={CreateUserAuth}>Log In</Button>
-                
+                <Button mode='contained' onPress={checkUserName}>Log In</Button>
+
                 <TouchableOpacity onPress={() => navigation.navigate("Intro")}>
                     <Text style={styles.last}>Already have an accout, Log in</Text>
                 </TouchableOpacity>

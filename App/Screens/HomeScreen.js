@@ -45,30 +45,38 @@ export function HomeScreen({ navigation, route }) {
     const now = new Date();
     let hr = now.getHours();
     let greeting = 'Morning';
-    if (hr >= 12 & hr <= 15 ) {
-        greeting="Afternoon"
+    if (hr >= 12 & hr <= 15) {
+        greeting = "Afternoon"
     }
     else if (hr >= 16) {
-        greeting="Evening"
+        greeting = "Evening"
     }
 
+    function adminNav() {
+        if (userInfo.userRole === 'Admin') {
+            return(
+                <Text style={[{marginBottom:10},styles.title]}>Creat a new user</Text>
+            )
+        }
+    }
     return (
         <SafeAreaView style={{ backgroundColor: "rgba(128,128,128,0.2)", flex: 1 }}>
             <View style={styles.container}>
-                <Text style={styles.greetingText}>Good {greeting} {userInfo.fName}</Text>
+                <Text style={styles.greetingText}>Good {greeting} {userInfo.fName} {userInfo.userRole}</Text>
                 <Searchbar
                     placeholder="Search Note"
                     value={searchQuery}
                     onChangeText={text => setSearchQuery(text)}
                     style={{ marginVertical: 7, borderRadius: 50, }}
                 />
+                {adminNav()}
                 <TouchableOpacity style={styles.addBtn}
                     onPress={() => navigation.navigate('AddNote', { userUID: userUID })}>
                     <FontAwesomeIcon icon={faPlus} size={30} color="white" />
                 </TouchableOpacity>
                 <FlatList data={notes} renderItem={({ item }) => {
                     return (
-                        <TouchableOpacity style={styles.singleNote} onPress={() => navigation.navigate("Note", { noteId: item.noteId })}
+                        <TouchableOpacity style={styles.singleNote} onPress={() => navigation.navigate("Note", { noteId: item.noteId, userUID: userUID })}
                             onLongPress={() => Alert.alert(
                                 'Delet Note',
                                 'Are you sure you want to delete this note?',

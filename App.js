@@ -1,16 +1,16 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { AuthNaviator } from './App/Components/Navigator';
-import { AddNote } from './App/Screens/AddNote';  
+import { VTU } from './VTU';  
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <NavigationContainer>
+    <KeyboardAvoidingView {...(Platform.OS === 'ios' ? { behavior: 60 } : {})} style={styles.container}>
+      {/* <NavigationContainer>
         <AuthNaviator />
-      </NavigationContainer>
-      {/* <AddNote/> */}
-    </View>
+      </NavigationContainer> */}
+      <VTU/>
+    </KeyboardAvoidingView>
   );
 }
 
