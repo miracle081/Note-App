@@ -37,8 +37,8 @@ export function Note({ navigation, route }) {
     function deletePost() {
         deleteDoc(doc(db, "notes", noteId))
             .then(navigation.navigate("HomeScreen", { userUID: userUID }))
-            .catch(() => {
-                Alert.alert('Error', 'An unknown error occured while deleting this post')
+            .catch((error) => {
+                Alert.alert('Error', error.message)
             })
     }
 

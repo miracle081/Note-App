@@ -11,27 +11,13 @@ export function Crypto() {
 
 
     const getList = async () => {
-        
+
         try {
-            // const url = "https://api.coingecko.com/api/v3/coins/list";
-            const url = "https://api.dictionaryapi.dev/api/v2/entries/en/miracle";
+            const url = "https://api.freecurrencyapi.com/v1/currencies?apikey=CX7TNxkIMLNtz5G6YQnSDLFVoRORcWyykYamZ67f";
             const response = await fetch(url);
             const data = await response.json();
-            // const { data } = await axios.get(url)
-            // console.log(data[0].meanings[0].definitions);
-
-            let newdata =data[0].meanings[0].definitions
-            newdata.forEach(element => {
-                // console.log(element);
-                setAllData((pre) => [...pre, element])
-
-            });
-
-            // display.innerHTML += list.map(coin => (`
-            //     <option value="${coin.id}">`))
-            // const req = await axios.get('https://api.coingecko.com/api/v3/simple/supported_vs_currencies');
-            // const cur = req.data;
-            // curDis.innerHTML = cur.map(curr => (`<option>${curr}</option>`))
+            setAllData(data)
+            console.log(data);
         } catch (error) {
             console.log(error);
         }
@@ -42,42 +28,6 @@ export function Crypto() {
     return (
         <ImageBackground source={require('./assets/15.jpg')} style={styles.container}>
             <View style={styles.overlay}>
-                {/* {
-                    allData.map(item => {
-                        return (
-                            <>
-                                <Text key={item.id}>keyboardType</Text>
-                            </>
-                        )
-                    })
-                } */}
-                {/* <TextInput
-                    label="Email"
-                    onChangeText={text => setEmail(text)}
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    keyboardType='email-address'
-                    style={styles.input}
-                />
-                <TextInput
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    label="Passsord"
-                    secureTextEntry={word}
-                    onChangeText={text => setPassword(text)}
-                    style={styles.input}
-                    right={<TextInput.Icon onPress={() => {
-                        if (word === true) {
-                            setWord(false)
-                            setIcon("eye-off")
-                        }
-                        else {
-                            setWord(true)
-                            setIcon("eye")
-
-                        }
-                    }} icon={icon} />}
-                /> */}
 
                 <Button mode='contained'>Log In</Button>
             </View>

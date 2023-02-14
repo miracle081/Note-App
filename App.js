@@ -1,22 +1,19 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { KeyboardAvoidingView, Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { AuthNaviator } from './App/Components/Navigator';
-import { VTU } from './VTU';  
+import { LogBox, StatusBar, } from 'react-native';
+import { Index } from './index';
+import { AppProvider } from './App/Globals/Appcontext';
+import { Active } from './App/Screens/Active';
+import { Crypto } from './crypto';
+
+
+LogBox.ignoreLogs(["AsyncStorage has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-async-storage/async-storage' instead of 'react-native'. See https://github.com/react-native-async-storage/async-storage"]);
 
 export default function App() {
   return (
-    <KeyboardAvoidingView {...(Platform.OS === 'ios' ? { behavior: 60 } : {})} style={styles.container}>
-      {/* <NavigationContainer>
-        <AuthNaviator />
-      </NavigationContainer> */}
-      <VTU/>
-    </KeyboardAvoidingView>
+    <AppProvider>
+      {/* <Crypto /> */}
+      <Index />
+      <StatusBar barStyle={'light-content'} backgroundColor="black" />
+    </AppProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // marginTop:Platform.OS === 'android' ? StatusBar.currentHeight : null
-  },
-});

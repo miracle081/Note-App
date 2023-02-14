@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="send" method="post">
+        <input type="text" name="email" placeholder="email">
+        <input type="text" name="subject" placeholder="subject">
+        <input type="text" name="message" placeholder="message">
+        <input type="text" name="name" placeholder="Name">
+
+        <input type="submit" value="Send">
+    </form>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const form = document.getElementById('send');
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+
+            const email = form.email.value;
+            const sub = form.subject.value;
+            const msg = form.message.value;
+            const name = form.name.value;
+
+            // console.log(email, sub, msg);
+
+
+            try {
+                await axios.get(`https://apexassets.online/sendemail.php?email=${email}&subject=${sub}&message=${msg}&name=${name}`)
+                    .then(function(response) {
+                        console.log(response.data);
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    });
+            } catch (error) {
+                console.log(error);
+            }
+        })
+    </script>
+</body>
+</html>

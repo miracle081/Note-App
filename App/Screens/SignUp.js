@@ -1,15 +1,14 @@
 import { useState, useContext, useEffect } from 'react';
-import { Alert, ImageBackground, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
+import { Alert, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from 'react-native';
 import { Button, TextInput, } from 'react-native-paper';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
 import { authentication, db } from '../../services/firebase';
 import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { collection, doc, getDocs, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { doc, setDoc, } from 'firebase/firestore';
+import { AppContext } from '../Globals/Appcontext';
 
 export function SignUp({ navigation }) {
+    const { setUserUID } = useContext(AppContext);
 
-    const [userExist, setUserExist] = useState(null);
     const [userName, setUserName] = useState("");
     const [fName, setFname] = useState("");
     const [lName, setLName] = useState("");
@@ -19,132 +18,113 @@ export function SignUp({ navigation }) {
     const [word, setWord] = useState(true);
     const [icon, setIcon] = useState("eye");
 
-    const userRecords = {
-        userName: userName,
-        fName: fName,
-        lName: lName,
-        phoneNumber: phone,
-        email: email,
-        password: password,
-        userRole: 'User',
+    function createAccount() {
+        createUserWithEmailAndPassword(authentication, email, password)
+            .then(() => onAuthStateChanged(authentication, (user) => {
+                const userUID = user.uid;
+                setDoc(doc(db, 'users', userUID), {
+                    uid: userUID,
+                    userName: userName,
+                    fName: fName,
+                    lName: lName,
+                    phoneNumber: phone,
+                    profilePic:"",
+                    email: email,
+                    balance: 0.00,
+                    password: password,
+                    userRole: 'User',
+                    history:[]
+                })
+                    .then(() => {
+                        setUserUID(userUID)
+                        navigation.navigate('HomeScreen');
+                    })
+                    .catch(() => Alert.alert(
+                        'Status',
+                        'Failed while interracting with database',
+                        [{ text: 'Ok', onPress: navigation.navigate('SignUp') }]
+                    ))
+            }))
+            .catch((error) => Alert.alert(
+                'Status',
+                `${error}`,
+                [{ text: 'Ok', onPress: navigation.navigate('SignUp') }]
+            ))
     }
-
-
-
-
-    function checkUserName() {
-        const q = collection(db, 'users');
-        const filter = query(q, where('userName', '==', userName));
-        getDocs(filter, (returned) => {
-            const allUser = [];
-            returned.forEach(item => {
-                const itemData = item.data();
-                itemData.noteId = item.id;
-                allUser.push(itemData);
-            })
-            console.log(allUser.length);
-            if (allUser.length === 0) {
-                setUserExist(false)
-            }
-            else if (allUser.length >= 1) {
-                setUserExist(true)
-            }
-        })
-        if (userExist === false) {
-            createUserWithEmailAndPassword(authentication, email, password)
-                .then(() => onAuthStateChanged(authentication, (user) => {
-                    const userUID = user.uid;
-
-                    //insert other records to firestore
-                    setDoc(doc(db, 'users', userUID), userRecords)
-                        .then(() => { navigation.navigate('HomeScreen', { userUID: userUID }) })
-                        .catch(() => Alert.alert(
-                            'Status',
-                            'Failed while interracting with database',
-                            [{ text: 'Back to SignUp', onPress: navigation.navigate('SignUp') }]
-                        ))
-                }))
-                .catch((error) => Alert.alert(
-                    'Status',
-                    `${error}`,
-                    [{ text: 'Back to SignUp', onPress: navigation.navigate('SignUp') }]
-                ))
-        }
-        else{
-            alert("User Exist")
-        }
-    }
-
-    // useEffect(() => {
-    //     checkUserName();
-    // }, []);
 
     return (
         <ImageBackground source={require('../../assets/15.jpg')} style={styles.container}>
-            <View style={styles.overlay}>
-                <Text style={styles.header}>Create An Account</Text>
-                <TextInput
-                    label="username"
-                    onChangeText={text => setUserName(text)}
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    style={styles.input}
-                />
-                <TextInput
-                    label="First Name"
-                    onChangeText={text => setFname(text)}
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    style={styles.input}
-                />
-                <TextInput
-                    label="Last Name"
-                    onChangeText={text => setLName(text)}
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    style={styles.input}
-                />
-                <TextInput
-                    label="Phone number"
-                    onChangeText={text => setPhone(text)}
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    style={styles.input}
-                    keyboardType='phone-pad'
-                />
-                <TextInput
-                    label="Email"
-                    onChangeText={text => setEmail(text)}
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    style={styles.input}
-                    keyboardType='email-address'
-                />
-                <TextInput
-                    underlineColor="none"
-                    activeUnderlineColor='none'
-                    label="Passsord"
-                    secureTextEntry={word}
-                    onChangeText={text => setPassword(text)}
-                    style={styles.input}
-                    right={<TextInput.Icon onPress={() => {
-                        if (word === true) {
-                            setWord(false)
-                            setIcon("eye-off")
-                        }
-                        else {
-                            setWord(true)
-                            setIcon("eye")
+            <ScrollView style={{ flex: 1}}>
+                <View style={styles.overlay}>
+                    <KeyboardAvoidingView {...(Platform.OS === 'ios' ? { behavior: "padding" } : {})}
+                        style={{
+                            width: "100%"
+                        }}
+                    >
+                        <Text style={styles.header}>Create An Account</Text>
+                        <TextInput
+                            label="User Name"
+                            onChangeText={text => setUserName(text)}
+                            underlineColor="none"
+                            activeUnderlineColor='none'
+                            style={styles.input}
+                        />
+                        <TextInput
+                            label="First Name"
+                            onChangeText={text => setFname(text)}
+                            underlineColor="none"
+                            activeUnderlineColor='none'
+                            style={styles.input}
+                        />
+                        <TextInput
+                            label="Last Name"
+                            onChangeText={text => setLName(text)}
+                            underlineColor="none"
+                            activeUnderlineColor='none'
+                            style={styles.input}
+                        />
+                        <TextInput
+                            label="Phone number"
+                            onChangeText={text => setPhone(text)}
+                            underlineColor="none"
+                            activeUnderlineColor='none'
+                            style={styles.input}
+                            keyboardType='phone-pad'
+                        />
+                        <TextInput
+                            label="Email"
+                            onChangeText={text => setEmail(text)}
+                            underlineColor="none"
+                            activeUnderlineColor='none'
+                            style={styles.input}
+                            keyboardType='email-address'
+                        />
+                        <TextInput
+                            underlineColor="none"
+                            activeUnderlineColor='none'
+                            label="Passsord"
+                            secureTextEntry={word}
+                            onChangeText={text => setPassword(text)}
+                            style={styles.input}
+                            right={<TextInput.Icon onPress={() => {
+                                if (word === true) {
+                                    setWord(false)
+                                    setIcon("eye-off")
+                                }
+                                else {
+                                    setWord(true)
+                                    setIcon("eye")
+                                }
+                            }} icon={icon} />}
+                        />
+                        <Button mode='contained' onPress={createAccount}>Log In</Button>
 
-                        }
-                    }} icon={icon} />}
-                />
-                <Button mode='contained' onPress={checkUserName}>Log In</Button>
-
-                <TouchableOpacity onPress={() => navigation.navigate("Intro")}>
-                    <Text style={styles.last}>Already have an accout, Log in</Text>
-                </TouchableOpacity>
-            </View>
+                        <TouchableOpacity onPress={() => navigation.navigate("Intro")}>
+                            <Text style={styles.last}>Already have an accout, Log in</Text>
+                        </TouchableOpacity>
+                    </KeyboardAvoidingView>
+                </View>
+            </ScrollView>
         </ImageBackground>
     );
 }
@@ -153,11 +133,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
-        // backgroundColor: '#372948',
     },
     overlay: {
         padding: 25,
-        flex: 1,
+        height:"100%",
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: "rgba(0,0,0,0.3)"
@@ -179,7 +158,8 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 30,
         fontWeight: 'bold',
-        marginBottom: 20
+        marginBottom: 20,
+        textAlign: "center"
     },
     last: {
         marginVertical: 10,
