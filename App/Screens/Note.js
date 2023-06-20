@@ -36,7 +36,7 @@ export function Note({ navigation, route }) {
 
     function deletePost() {
         deleteDoc(doc(db, "notes", noteId))
-            .then(navigation.navigate("HomeScreen", { userUID: userUID }))
+            .then(() => navigation.navigate("HomeScreen", { userUID: userUID }))
             .catch((error) => {
                 Alert.alert('Error', error.message)
             })
